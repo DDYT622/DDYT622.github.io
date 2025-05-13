@@ -1,10 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        /* 确保画布与你的页面布局匹配 */
+        #eye-canvas {
+            position: absolute;
+            z-index: 999;
+            pointer-events: none;
+        }
+        /* 根据实际眼睛位置调整 */
+        .eye-container {
+            position: absolute;
+            left: 45%;  /* 调整水平位置 */
+            top: 38%;   /* 调整垂直位置 */
+            width: 120px;
+            height: 120px;
+        }
+    </style>
 </head>
 <body>
-    <h1>哈哈哈哈哈哈哈</h1>
+    <!-- 你的页面其他内容 -->
+    
+
+
+    <!-- 眼睛容器 -->
+    <div class="eye-container">
+        <div id="eye-canvas"></div>
+    </div>
+
+<script>
+// 配置参数（根据实际需要调整）
+const eyeConfig = {
+    size: 110,          // 眼睛直径
+    irisColor: [46, 134, 222],  // RGB蓝色虹膜
+    pupilSize: 45,      // 瞳孔直径
+    trackingSpeed: 0.15  // 跟踪平滑度（0-1）
+};
+
+let eye;
+function setup() {
+    const canvas = createCanvas(eyeConfig.size, eyeConfig.size);
+    canvas.parent('eye-canvas');
+    colorMode(RGB);
+    angleMode(DEGREES);
+    noStroke();
+
+    // 初始化眼睛位置
+    eye = {
+        x: width/2,
+        y: height/2,
+        currentAngle: 0
+    };
+}
+
+function draw() {
+    clear();
+
+    // 计算平滑跟踪
+    const targetAngle = atan2(mouseY - eye.y, mouseX - eye.x);
+    eye.currentAngle = lerpAngle(eye.currentAngle, targetAngle, eyeConfig.trackingSpeed);
+
+    push();
+    translate(eye.x, eye.y);
+
+    // 绘制眼白（带立体感）
+    fill(245);
+    ellipse(0, 0, eyeConfig.size, eyeConfig.size);
+    fill(230);
+    ellipse(0, 0, eyeConfig.size-8, eyeConfig.size-8);
+
+    // 绘制虹膜
+    rotate(eye.currentAngle);
+    fill(...eyeConfig.irisColor);
+    ellipse(eyeConfig.size/6, 0, eyeConfig.pupilSize, eyeConfig.pupilSize);
+
+    // 添加高光
+    fill(255, 180);
+    ellipse(eyeConfig.size/6 + 8, -8, 12, 12);
+
+    pop();
+}
+
+// 角度插值函数
+function lerpAngle(a, b, t) {
+    const diff = (b - a + 180) % 360 - 180;
+    return a + diff * t;
+}
+</script>
 </body>
 </html>
